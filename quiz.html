@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz - General Knowledge</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8; /* Light background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 20px; /* Padding for small screens */
+            overflow: hidden;
+        }
+
+        .quiz-container {
+            background-color: #fff; /* White background for quiz box */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh; /* Limit the quiz container height */
+            overflow-y: auto; /* Add scrolling for long quizzes */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #00796b; /* Primary color for headings */
+            font-size: 24px;
+        }
+
+        .question {
+            margin: 20px 0 10px;
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .answers {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        label:hover {
+            background-color: #e0f2f1; /* Light hover effect */
+        }
+
+        .correct {
+            color: #2e7d32; /* Green for correct answers */
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: #d32f2f; /* Red for incorrect answers */
+            font-weight: bold;
+        }
+
+        #submit-btn {
+            background-color: #00796b; /* Primary button color */
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #submit-btn:hover {
+            background-color: #004d40; /* Darker shade on hover */
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00796b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>General Knowledge Quiz</h1>
+        <form id="quiz-form">
+            <div id="quiz-questions"></div>
+            <button type="button" id="submit-btn">Submit</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Question Bank with General Knowledge questions
+        const questions = [
+            {
+                question: "What is the capital city of India?",
+                answers: {
+                    a: "Mumbai",
+                    b: "New Delhi",
+                    c: "Kolkata",
+                    d: "Chennai"
+                },
+                correctAnswer: "b"
+            },
+            {
+                question: "Who is known as the 'Father of the Nation' in India?",
+                answers: {
+                    a: "Jawaharlal Nehru",
+                    b: "Subhash Chandra Bose",
+                    c: "Mahatma Gandhi",
+                    d: "Sardar Patel"
+                },
+                correctAnswer: "c"
+            },
+            {
+                question: "Which is the national animal of India?",
+                answers: {
+                    a: "Lion",
+                    b: "Tiger",
+                    c: "Elephant",
+                    d: "Peacock"
+                },
+                correctAnswer: "b"
+            },
+            {
+                question: "What is the currency of India?",
+                answers: {
+                    a: "Dollar",
+                    b: "Euro",
+                    c: "Rupee",
+                    d: "Yen"
+                },
+                correctAnswer: "c"
+            },
+            {
+                question: "Who was the first President of India?",
+                answers: {
+                    a: "Dr. Rajendra Prasad",
+                    b: "Dr. A.P.J. Abdul Kalam",
+                    c: "S. Radhakrishnan",
+                    d: "Zakir Husain"
+                },
+                correctAnswer: "a"
+            }
+        ];
+
+        // Generate quiz dynamically
+        const quizContainer = document.getElementById('quiz-questions');
+        const submitButton = document.getElementById('submit-btn');
+        const resultContainer = document.getElementById('result');
+
+        function loadQuiz() {
+            const output = [];
+            questions.forEach((currentQuestion, questionNumber) => {
+                const answers = [];
+                for (letter in currentQuestion.answers) {
+                    answers.push(
+                        `<label>
+                            <input type="radio" name="question${questionNumber}" value="${letter}">
+                            ${letter}: ${currentQuestion.answers[letter]}
+                        </label>`
+                    );
+                }
+                output.push(
+                    `<div class="question"> ${currentQuestion.question} </div>
+                     <div class="answers"> ${answers.join('')} </div>`
+                );
+            });
+            quizContainer.innerHTML = output.join('');
+        }
+
+        function calculateScore() {
+            const answerContainers = quizContainer.querySelectorAll('.answers');
+            let score = 0;
+            questions.forEach((currentQuestion, questionNumber) => {
+                const answerContainer = answerContainers[questionNumber];
+                const selector = `input[name=question${questionNumber}]:checked`;
+                const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+                const allLabels = answerContainer.querySelectorAll('label');
+                allLabels.forEach(label => {
+                    label.style.color = 'black';  // Reset the color
+                });
+
+                if (userAnswer === currentQuestion.correctAnswer) {
+                    score++;
+                    // Highlight correct answer in green
+                    answerContainer.querySelector(`input[value=${userAnswer}]`).parentNode.style.color = 'green';
+                } else {
+                    // Highlight incorrect answer in red
+                    if (userAnswer) {
+                        answerContainer.querySelector(`input[value=${userAnswer}]`).parentNode.style.color = 'red';
+                    }
+                    // Highlight correct answer in green
+                    answerContainer.querySelector(`input[value=${currentQuestion.correctAnswer}]`).parentNode.style.color = 'green';
+                }
+            });
+            return score;
+        }
+
+        function showResults() {
+            const score = calculateScore();
+            resultContainer.innerHTML = `You scored ${score} out of ${questions.length}`;
+        }
+
+        loadQuiz();
+        submitButton.addEventListener('click', showResults);
+    </script>
+
+</body>
+</html>
+
